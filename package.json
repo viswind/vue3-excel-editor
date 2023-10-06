@@ -1,8 +1,7 @@
 {
   "name": "vue3-excel-editor",
-  "email": "apple.6502@gmail.com",
   "description": "Vue3 plugin for displaying and editing the array-of-object in Excel style",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "main": "src/main.js",
   "dependencies": {
     "@vuepic/vue-datepicker": "^3.3.0",
@@ -11,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cscan/vue3-excel-editor.git"
+    "url": "https://github.com/viswind/vue3-excel-editor"
   },
   "keywords": [
     "vue",
@@ -41,10 +40,6 @@
     "navigatable",
     "contenteditable"
   ],
-  "author": "Kenneth Cheng",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/cscan/vue3-excel-editor/issues"
-  },
-  "homepage": "https://github.com/cscan/vue3-excel-editor"
+  "homepage": "https://github.com/viswind/vue3-excel-editor"
 }
