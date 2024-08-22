@@ -36,10 +36,6 @@
                 <span style="width:100%">
                   <svg v-if="selectedCount>0" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times-circle" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-times-circle fa-w-16 fa-sm"><path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm121.6 313.1c4.7 4.7 4.7 12.3 0 17L338 377.6c-4.7 4.7-12.3 4.7-17 0L256 312l-65.1 65.6c-4.7 4.7-12.3 4.7-17 0L134.4 338c-4.7-4.7-4.7-12.3 0-17l65.6-65-65.6-65.1c-4.7-4.7-4.7-12.3 0-17l39.6-39.6c4.7-4.7 12.3-4.7 17 0l65 65.7 65.1-65.6c4.7-4.7 12.3-4.7 17 0l39.6 39.6c4.7 4.7 4.7 12.3 0 17L312 256l65.6 65.1z"></path></svg>
                   <svg v-else aria-hidden="true" focusable="false" data-prefix="fas" data-icon="bars" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="svg-inline--fa fa-bars fa-w-14 fa-sm"><path fill="currentColor" d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z"></path></svg>
-                  <!--
-                  <svg v-if="processing" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="spinner" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-spinner fa-w-16 fa-spin fa-sm"><path fill="currentColor" d="M304 48c0 26.51-21.49 48-48 48s-48-21.49-48-48 21.49-48 48-48 48 21.49 48 48zm-48 368c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48zm208-208c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48zM96 256c0-26.51-21.49-48-48-48S0 229.49 0 256s21.49 48 48 48 48-21.49 48-48zm12.922 99.078c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48c0-26.509-21.491-48-48-48zm294.156 0c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48c0-26.509-21.49-48-48-48zM108.922 60.922c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.491-48-48-48z"></path></svg>
-                  <svg v-else aria-hidden="true" focusable="false" data-prefix="fas" data-icon="bars" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="svg-inline--fa fa-bars fa-w-14 fa-sm"><path fill="currentColor" d="M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z"></path></svg>
-                  -->
                 </span>
               </th>
               <th v-for="(item, p) in fields"
@@ -48,7 +44,8 @@
                   :colspan="p === fields.length - 1 && vScroller.buttonHeight < vScroller.height ? 2: 1"
                   :class="{'sort-asc-sign': sortPos==p && sortDir==1,
                           'sort-des-sign': sortPos==p && sortDir==-1,
-                          'sticky-column': item.sticky}"
+                          'sticky-column': item.sticky,
+                          'no-sorting': item.noSorting}"
                   :style="{left: item.left}"
                   @mousedown="headerClick($event, p)"
                   @contextmenu.prevent="panelFilterClick(item)">
@@ -70,7 +67,7 @@
                   :style="{top: calCellTop2 + 'px'}"
                   @click="columnFilter = {}">
                 <span v-if="Object.keys(columnFilter).length > 0">
-                  <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="eraser" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-eraser fa-w-16 fa-sm"><path fill="currentColor" d="M497.941 273.941c18.745-18.745 18.745-49.137 0-67.882l-160-160c-18.745-18.745-49.136-18.746-67.883 0l-256 256c-18.745 18.745-18.745 49.137 0 67.882l96 96A48.004 48.004 0 0 0 144 480h356c6.627 0 12-5.373 12-12v-40c0-6.627-5.373-12-12-12H355.883l142.058-142.059zm-302.627-62.627l137.373 137.373L265.373 416H150.628l-80-80 124.686-124.686z"></path></svg>                  
+                  <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="eraser" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-eraser fa-w-16 fa-sm"><path fill="currentColor" d="M497.941 273.941c18.745-18.745 18.745-49.137 0-67.882l-160-160c-18.745-18.745-49.136-18.746-67.883 0l-256 256c-18.745 18.745-18.745 49.137 0 67.882l96 96A48.004 48.004 0 0 0 144 480h356c6.627 0 12-5.373 12-12v-40c0-6.627-5.373-12-12-12H355.883l142.058-142.059zm-302.627-62.627l137.373 137.373L265.373 416H150.628l-80-80 124.686-124.686z"></path></svg>
                 </span>
                 <!--
                 <svg v-if="selectedCount==table.length" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times-circle" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-times-circle fa-w-16 fa-sm"><path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm121.6 313.1c4.7 4.7 4.7 12.3 0 17L338 377.6c-4.7 4.7-12.3 4.7-17 0L256 312l-65.1 65.6c-4.7 4.7-12.3 4.7-17 0L134.4 338c-4.7-4.7-4.7-12.3 0-17l65.6-65-65.6-65.1c-4.7-4.7-4.7-12.3 0-17l39.6-39.6c4.7-4.7 12.3-4.7 17 0l65 65.7 65.1-65.6c4.7-4.7 12.3-4.7 17 0l39.6 39.6c4.7 4.7 4.7 12.3 0 17L312 256l65.6 65.1z"></path></svg>
@@ -115,15 +112,21 @@
                   :class="{
                     readonly: item.readonly,
                     error: errmsg[`id-${record.$id}-${item.name}`],
-                    link: item.link,
+                    link: item.link && item.isLink && item.isLink(record),
                     select: item.options,
+                    grouping: item.grouping,
+                    expand: item.grouping && ungroup[item.name + record[item.name]],
                     datepick: item.type == 'date',
-                    'sticky-column': item.sticky
+                    stickyColumn: item.sticky,
+                    hideDuplicate: item.hideDuplicate && rowPos > 0 && isSameSinceLeft(p, record, pagingTable[rowPos-1]),
                   }"
                   :key="p"
-                  :style="Object.assign(cellStyle(record, item), renderColumnCellStyle(item))"
+                  :style="Object.assign(cellStyle(record, item), renderColumnCellStyle(item, record))"
                   @mouseover="cellMouseOver"
-                  @mousemove="cellMouseMove">{{ item.toText(record[item.name]) }}</td>
+                  @mousemove="cellMouseMove">
+                  <template v-if="item.format=='html'"><span v-html="item.toText(record[item.name], record, item, p)" /></template>
+                  <template v-else>{{ item.toText(record[item.name], record, item, p) }}</template>
+                </td>
               <td v-if="vScroller.buttonHeight < vScroller.height" class="last-col"></td>
             </tr>
           </tbody>
@@ -149,6 +152,9 @@
 
         <!-- Tool Tip -->
         <div v-show="tip" ref="tooltip" class="tool-tip">{{ tip }}</div>
+
+        <!-- Text Tip -->
+        <div v-show="textTip" ref="texttip" class="text-tip">{{ textTip }}</div>
 
         <!-- Editor Square -->
         <div v-show="focused" ref="inputSquare" class="input-square" @mousedown="inputSquareClick">
@@ -181,7 +187,7 @@
       </div>
 
       <!-- Vertical Scroll Bar -->
-      <div v-if="vScroller.buttonHeight < vScroller.height"
+      <div v-show="vScroller.buttonHeight < vScroller.height"
            ref="vScroll"
            class="v-scroll"
            :style="{top: `${vScroller.top}px`, height: `${vScroller.height}px`}"
@@ -323,6 +329,7 @@ export default defineComponent({
     },
     noFinding: {type: Boolean, default: false},
     noFindingNext: {type: Boolean, default: false},
+    noSorting: {type: Boolean, default: false},
     filterRow: {type: Boolean, default: false},
     freeSelect: {type: Boolean, default: false},
     noFooter: {type: Boolean, default: false},
@@ -334,6 +341,7 @@ export default defineComponent({
     nFilterCount: {type: Number, default: 1000},    // show top n values in filter dialog
     height: {type: String, default: ''},
     width: {type: String, default: '100%'},
+    wheelSensitivity: {type: Number, default: 30},
     autocomplete: {type: Boolean, default: false},  // Default autocomplete of all columns
     autocompleteCount: {type: Number, default: 50},
     readonly: {type: Boolean, default: false},
@@ -414,7 +422,7 @@ export default defineComponent({
       pageTop: 0,                   // Current page top pos of [table] array
 
       selected: {},                 // selected storage in hash, key is the pos of [table] array
-      selectedCount: 0,             // selected row count
+      _selectedCount: 0,            // selected row count
       prevSelect: -1,               // previous select pos of [table] array
       processing: false,            // current general-purpose processing status
 
@@ -434,6 +442,7 @@ export default defineComponent({
       errmsg: {},
       rowerr: {},
       tip: '',
+      textTip: '',
 
       colHash: '',
       fields: [],
@@ -469,11 +478,22 @@ export default defineComponent({
       summaryRow: false,
       summary: {},
       showFilteredOnly: true,
-      showSelectedOnly: false
+      showSelectedOnly: false,
+
+      ungroup: {}
     }
     return dataset
   },
   computed: {
+    selectedCount: {
+      get () {
+        return this._selectedCount
+      },
+      set (value) {
+        this._selectedCount = value
+        this.$emit('update:selectedCount', value)
+      }
+    },
     token () {
       const id = Array.from(document.querySelectorAll('.vue-excel-editor')).indexOf(this.$el)
       return `vue-excel-editor-${id}`
@@ -540,7 +560,7 @@ export default defineComponent({
       handler () {
         this.lazy(() => {
           const setting = this.getSetting()
-          if (this.remember) localStorage[window.location.pathname + '.' + this.token] = JSON.stringify(setting)
+          if (this.remember) localStorage[window.location.pathname + window.location.hash + '.' + this.token] = JSON.stringify(setting)
           this.$emit('setting', setting)
         })
       },
@@ -595,6 +615,7 @@ export default defineComponent({
       this.calStickyLeft()
     }, 200)
 
+    if (ResizeObserver) new ResizeObserver(this.winResize).observe(this.tableContent)
     window.addEventListener('resize', this.winResize)
     window.addEventListener('paste', this.winPaste)
     window.addEventListener('keydown', this.winKeydown)
@@ -603,7 +624,7 @@ export default defineComponent({
     window.addEventListener('wheel', this.mousewheel, {passive: false})
 
     if (this.remember) {
-      const saved = localStorage[window.location.pathname + '.' + this.token]
+      const saved = localStorage[window.location.pathname + window.location.hash + '.' + this.token]
       if (saved) {
         const data = JSON.parse(saved)
         if (data.colHash === this.colHash)
@@ -612,6 +633,15 @@ export default defineComponent({
     }
   },
   methods: {
+    isSameSinceLeft(p, rec1, rec2) {
+      for(let i=0; i<=p; i++) {
+        if (!this.fields[i].invisible && this.fields[i].hideDuplicate) {
+          const name = this.fields[i].name
+          if (rec1[name] !== rec2[name]) return false
+        }
+      }
+      return true
+    },
     componentTabInto (e) {
       if (e.keyCode === 9) {
         if (!this.moveInputSquare(this.currentRowPos, this.currentColPos))
@@ -638,6 +668,7 @@ export default defineComponent({
     toggleSelectView (e) {
       if (e) e.stopPropagation()
       this.showSelectedOnly = !this.showSelectedOnly
+      this.firstPage()
       return this.refresh()
     },
     toggleFilterView (e) {
@@ -693,7 +724,7 @@ export default defineComponent({
         register: null
       }
       if (this.addColumn) colDef = this.addColumn(colDef)
-      this.newColumn(colDef, pos)      
+      this.newColumn(colDef, pos)
     },
     newColumn (field, pos) {
       this.fields.splice(pos, 0, field)
@@ -736,7 +767,7 @@ export default defineComponent({
           toText: t => t,
           register: null
         })
-      })        
+      })
     },
     refresh () {
       // this.pageTop = 0
@@ -745,9 +776,11 @@ export default defineComponent({
         this.autoRegisterAllColumns(this.modelValue)
       }
       this.calTable()
+      this.calStickyLeft()
       this.refreshPageSize()
     },
     calTable () {
+      this.textTip = ''
       // add unique key to each row if no key is provided
       let seed = String(new Date().getTime() % 1e8)
       this.modelValue.forEach((rec,i) => {
@@ -805,6 +838,7 @@ export default defineComponent({
           }
         })
         this.filteredValue = this.modelValue.filter(record => this.recordFilter(record))
+        this.filteredValue = this.filteredValue.filter((record, i) => this.filterGrouping(record, i, this.modelValue))
         if (filterColumnList.length === 0)
           this.table = this.filteredValue
         else {
@@ -877,6 +911,22 @@ export default defineComponent({
       }
       this.calSummary()
     },
+    filterGrouping (rec, i, table) {
+      if (i === 0) return true
+      const prec = table[i-1]
+      let result = true
+      this.fields.forEach(field => {
+        const name = field.name
+        if (field.grouping && rec[name] === prec[name]) {
+          if (field.grouping === 'collapse' && this.ungroup[field.name + rec[name]] !== true)
+            result = false
+          else
+          if (field.grouping === 'expand' && this.ungroup[field.name + rec[name]])
+            result = false
+        }
+      })
+      return result
+    },
     calStickyLeft () {
       let left = 0, n = 0
       this.leftMost = -1
@@ -895,15 +945,18 @@ export default defineComponent({
       const instance = getCurrentInstance()
       instance?.proxy?.$forceUpdate()
     },
-    renderColumnCellStyle (field) {
+    renderColumnCellStyle (field, record) {
       let result = field.initStyle
+      if (typeof result === 'function') result = result(record, field)
       if (field.readonly) result = Object.assign(result, this.readonlyStyle)
-      if (field.left) result = Object.assign(result, {left: field.left})
+      if (field.left) result.left = field.left
+      if (record && field.color)
+        result.color = (typeof field.color === 'function' ? field.color(record) : field.color)
       return result
     },
     localeDate (d) {
       if (typeof d === 'undefined') d = new Date()
-      const pad = n => n < 10 ? '0'+n : n;    
+      const pad = n => n < 10 ? '0'+n : n;
       return d.getFullYear() + '-'
             + pad(d.getMonth() + 1) + '-'
             + pad(d.getDate()) + ' '
@@ -995,7 +1048,7 @@ export default defineComponent({
       ref.$el.textContent = filterText
       ref.$emit('update:modelValue', filterText)
     },
-    
+
     clearFilter(name) {
       if (!name) this.columnFilter = {}
       else this.setFilter(name, '')
@@ -1085,12 +1138,12 @@ export default defineComponent({
           break
         case 'datetimesec':
           this.inputBox.value = new Date(new Date(this.inputDateTime) - offset).toISOString().replace('T', ' ').slice(0, 19)
-          this.inputBox.value = m.format('YYYY-MM-DD hh:mn:ss')
+          // this.inputBox.value = m.format('YYYY-MM-DD hh:mn:ss')
           break
         case 'datetick':
         case 'datetimetick':
         case 'datetimesectick':
-          this.inputBox.value = m.valueOf()
+          this.inputBox.value = new Date(new Date(this.inputDateTime) - offset).getTime()
           break
       }
       this.inputBoxShow = 0
@@ -1259,8 +1312,8 @@ export default defineComponent({
     mousewheel (e) {
       if (this.noMouseScroll || !this.mousein || !e.deltaY) return
       let adjust = 0
-      if (e.deltaY > 30 && this.pageTop + this.pageSize < this.table.length) adjust = 1
-      else if (e.deltaY < -30 && this.pageTop > 0) adjust = -1
+      if (e.deltaY > 1 * this.wheelSensitivity && this.pageTop + this.pageSize < this.table.length) adjust = 1
+      else if (e.deltaY < -1 * this.wheelSensitivity && this.pageTop > 0) adjust = -1
       if (adjust) {
         this.pageTop += adjust
         setTimeout(this.calVScroll)
@@ -1290,6 +1343,13 @@ export default defineComponent({
     },
     winKeyup (e) {
       if (!e.altKey) this.systable.classList.remove('alt')
+      if (this.inputBoxShow && this.currentField.type === 'password') {
+        setTimeout(() => {
+          const v = this.inputBox.value.split('').map((c, i) => c === this.currentField.masking ? this.inputBox._value[i] : c)
+          this.inputBox._value = v.join('')
+          this.inputBox.value = this.currentField.masking.repeat(v.length)
+        })
+      }
     },
     winKeydown (e) {
       if (e.altKey) this.systable.classList.add('alt')
@@ -1480,9 +1540,9 @@ export default defineComponent({
               else
                 if (this.currentField.allowKeys.indexOf(e.key.toUpperCase()) === -1) return e.preventDefault()
             }
-            if (this.currentField.lengthLimit && this.inputBox.value.length >= this.currentField.lengthLimit) return e.preventDefault()
+            if (this.inputBoxShow && this.currentField.lengthLimit && this.inputBox.value.length >= this.currentField.lengthLimit) return e.preventDefault()
             if (!this.inputBoxShow) {
-              if (this.currentField.type === 'select' || this.currentField.type === 'map') {
+              if (['select', 'map', 'action'].includes(this.currentField.type)) {
                 setTimeout(() => this.calAutocompleteList(true))
                 if (e.keyCode === 32) return e.preventDefault()
                 this.inputBox.value = ''
@@ -1495,8 +1555,9 @@ export default defineComponent({
               this.inputBox.focus()
               setTimeout(this.calAutocompleteList)
             }
-            else
+            else {
               setTimeout(() => this.calAutocompleteList(this.autocompleteInputs.length))
+            }
             this.inputBoxChanged = true
             break
         }
@@ -1521,7 +1582,7 @@ export default defineComponent({
       const index = Array.from(this.labelTr.children).indexOf(e.target.parentElement)
       this.sep = {}
       // this.sep.curCol = this.colgroupTr.children[Array.from(this.labelTr.children).indexOf(e.target.parentElement)]
-      this.sep.curCol = this.colgroupTr.children[index]
+      this.sep.curCol = this.colgroupTr.children[index - (this.noNumCol ? 1: 0)]
       this.sep.curField = this.fields[index - 1]
       // this.sep.nxtCol = this.sep.curCol.nextElementSibling
       this.sep.pageX = e.pageX
@@ -1581,7 +1642,7 @@ export default defineComponent({
       window.removeEventListener('mousemove', this.colSepMouseMove)
       window.removeEventListener('mouseup', this.colSepMouseUp)
       const setting = this.getSetting()
-      if (this.remember) localStorage[window.location.pathname + '.' + this.token] = JSON.stringify(setting)
+      if (this.remember) localStorage[window.location.pathname + window.location.hash + '.' + this.token] = JSON.stringify(setting)
       this.$emit('setting', setting)
     },
 
@@ -1656,31 +1717,34 @@ export default defineComponent({
       this.fields[index - 1].label = e.target.textContent
     },
     sort (n, pos) {
-      this.processing = true
       const colPos = typeof pos === 'undefined' ? this.columnFilterRef.colPos : pos
       const field = this.fields[colPos]
+      if (field.noSorting) return
+
+      this.processing = true
+
       const name = field.name
       setTimeout(() => {
-        let sorting = field.sort
-        if (sorting === null) {
+        let sorting = field.sorting
+        if (!sorting) {
           if (field.type === 'number')
             sorting = (a, b) => {
-              if (Number(a[name]) > Number(b[name])) return 1
-              if (Number(a[name]) < Number(b[name])) return -1
+              if (Number(a) > Number(b)) return 1
+              if (Number(a) < Number(b)) return -1
               return 0
             }
           else
-              sorting = (a, b) => {
-                return String(a[name]).localeCompare(String(b[name]))
-              }
+            sorting = (a, b) => {
+              return String(a).localeCompare(String(b))
+            }
         }
         this.modelValue.sort((a, b) => {
-          return sorting(a, b) * -n
+          if (field.sort) return field.sort(a, b) * -n
+          else return sorting(a[name], b[name]) * -n
         })
         this.sortPos = colPos
         this.sortDir = n
         this.refresh()
-        // this.$forceUpdate()
         this.processing = false
       }, 0)
     },
@@ -1793,7 +1857,7 @@ export default defineComponent({
     },
 
     settingClick() {
-      if (!this.disablePanelSetting) 
+      if (!this.disablePanelSetting)
         this.$refs.panelSetting.showPanel();
     },
 
@@ -1808,7 +1872,7 @@ export default defineComponent({
       this.$refs.importFile.click()
       this.importCallback = cb
       this.importErrorCallback = errCb
-    },   
+    },
     doImport (e) {
       this.processing = true
       // this.refresh()
@@ -1858,8 +1922,8 @@ export default defineComponent({
                 if (keys.length) {
                   // locate match record
                   rowPos = this.table.findIndex(v =>
-                    keys.filter(f => 
-                      typeof v[f.name] !== 'undefined' 
+                    keys.filter(f =>
+                      typeof v[f.name] !== 'undefined'
                       && (v[f.name] === line[f.name] || v[f.name] === line[f.label])).length === keys.length
                   )
                   if (rowPos === -1) {
@@ -1962,7 +2026,7 @@ export default defineComponent({
           throw new Error('VueExcelEditor: ' + e.stack)
         }
         fileReader.readAsBinaryString(file)
-      }, 500)      
+      }, 500)
     },
     exportTable (format, selectedOnly, filename) {
       this.processing = true
@@ -2083,7 +2147,7 @@ export default defineComponent({
       }
     },
     selectRecordByKeys (keys) {
-      const rowPos = this.table.findIndex(v => 
+      const rowPos = this.table.findIndex(v =>
         this.fields.filter(f => f.keyField).filter(f => v[f.name] === keys[f.name]).length === keys.length)
       if (rowPos >= 0) this.selectRecord(rowPos)
     },
@@ -2227,16 +2291,51 @@ export default defineComponent({
     mouseDown (e) {
       if (e.target.parentNode.parentNode.tagName === 'TBODY' && !e.target.classList.contains('first-col')) {
         e.preventDefault()
-        setTimeout(() => this.inputBox.focus())
-        this.focused = true
         const row = e.target.parentNode
         const colPos = Array.from(row.children).indexOf(e.target) - 1
         const rowPos = Array.from(row.parentNode.children).indexOf(row)
+        this.currentField = this.fields[colPos]
+        this.currentCell = row.children[colPos + 1]
+        this.currentRecord = this.table[this.pageTop + rowPos]
         this.$emit('cell-click', {rowPos, colPos})
+        if (typeof this.currentField.cellClick === 'function')
+          this.currentField.cellClick(this.currentCell.textContent, this.currentRecord, rowPos, colPos, this.currentField, this)
+        if (this.currentField && this.currentField.link /* && e.altKey */ && this.currentCell.textContent)
+          return setTimeout(() => this.currentField.link(this.currentCell.textContent, this.currentRecord, rowPos, colPos, this.currentField, this))
+        if (this.currentField.grouping) {
+          this.ungroup[this.currentField.name + this.currentCell.textContent] = !this.ungroup[this.currentField.name + this.currentCell.textContent]
+          this.refresh()
+          return
+        }
+        setTimeout(() => this.inputBox.focus())
+        this.focused = true
         this.moveInputSquare(rowPos, colPos)
-        if (this.currentField && this.currentField.link && e.altKey)
-          setTimeout(() => this.currentField.link(this.currentCell.textContent, this.currentRecord, rowPos, colPos, this.currentField, this))
-        if (e.target.offsetWidth - e.offsetX > 15) return
+
+        if (this.currentField.listByClick) return this.calAutocompleteList(true)
+        if (e.target.offsetWidth - e.offsetX > 25) return
+        if (e.target.offsetWidth < e.target.scrollWidth) {
+          // show textTip
+          this.textTip = this.currentCell.textContent
+          this.$refs.texttip.style.opacity = 0
+          const rect = e.target.getBoundingClientRect()
+          setTimeout(() => {
+            const r = this.$refs.texttip.getBoundingClientRect()
+            if (rect.bottom + r.height > window.innerHeight) {
+              // show at top
+              this.$refs.texttip.style.top = (rect.top - r.height) + 'px'
+            }
+            else {
+              this.$refs.texttip.style.top = rect.bottom + 'px'
+            }
+            if (rect.left + r.width > window.innerWidth)
+              this.$refs.texttip.style.left = (rect.right - r.width) + 'px'
+            else
+              this.$refs.texttip.style.left = rect.left + 'px'
+            this.$refs.texttip.style.opacity = 1
+          })
+          // this.$refs.texttip.style.top = rect.bottom + 'px'
+          // this.$refs.texttip.style.left = rect.left + 'px'
+        }
         if (this.currentField.readonly) return
         this.inputBox.value = this.currentCell.textContent
         if (e.target.classList.contains('select')) this.calAutocompleteList(true)
@@ -2246,9 +2345,16 @@ export default defineComponent({
     cellMouseMove (e) {
       let cursor = 'cell'
       if (this.inputBoxShow) cursor = 'default'
-      if (!e.target.classList.contains('readonly')
-        && (e.target.classList.contains('select') || e.target.classList.contains('datepick'))
-        && e.target.offsetWidth - e.offsetX < 15)
+      if (e.target.offsetWidth - e.offsetX < 25) {
+        if (!e.target.classList.contains('readonly') && (e.target.classList.contains('select') || e.target.classList.contains('datepick')))
+          cursor = 'pointer'
+        if (e.target.offsetWidth < e.target.scrollWidth)
+          cursor = 'pointer'
+      }
+      const row = e.target.parentNode
+      const colPos = Array.from(row.children).indexOf(e.target) - 1
+      const currentField = this.fields[colPos]
+      if (currentField?.type === 'action' || currentField?.grouping)
         cursor = 'pointer'
       e.target.style.cursor = cursor
     },
@@ -2258,7 +2364,7 @@ export default defineComponent({
       if (this.tipTimeout) clearTimeout(this.tipTimeout)
       if ((this.tip = this.errmsg[cell.getAttribute('id')]) === '') return
       const rect = cell.getBoundingClientRect()
-      this.$refs.tooltip.style.top = (rect.top - 14) + 'px';
+      this.$refs.tooltip.style.top = (rect.top - 14) + 'px'
       this.$refs.tooltip.style.left = (rect.right + 8) + 'px'
       cell.addEventListener('mouseout', this.cellMouseOut)
     },
@@ -2268,7 +2374,7 @@ export default defineComponent({
       if (this.tipTimeout) clearTimeout(this.tipTimeout)
       if ((this.tip = this.rowerr[cell.getAttribute('id')]) === '') return
       const rect = cell.getBoundingClientRect()
-      this.$refs.tooltip.style.top = (rect.top - 14) + 'px';
+      this.$refs.tooltip.style.top = (rect.top - 14) + 'px'
       this.$refs.tooltip.style.left = (rect.right + 8) + 'px'
       cell.addEventListener('mouseout', this.cellMouseOut)
     },
@@ -2290,6 +2396,7 @@ export default defineComponent({
     /* *** InputBox *****************************************************************************************
      */
     moveInputSquare (rowPos, colPos) {
+      this.textTip = ''
       if (colPos < 0) return false
       const top = this.pageTop
       let row = this.recordBody.children[rowPos]
@@ -2316,11 +2423,14 @@ export default defineComponent({
       this.labelTr.children[this.currentColPos + 1].classList.remove('focus')
       if (this.currentRowPos >= 0 && this.currentRowPos < this.pagingTable.length)
         this.recordBody.children[this.currentRowPos].children[0].classList.remove('focus')
+      this.lastCell?.classList.remove('focus')
 
       // Off the textarea when moving, write to value if changed
       if (this.inputBoxShow) this.inputBoxShow = 0
       if (this.inputBoxChanged) {
-        this.inputCellWrite(this.inputBox.value, this.currentColPos, top + this.currentRowPos)
+        const value = this.inputBox._value || this.inputBox.value
+        this.inputBox._value = ''
+        this.inputCellWrite(value, this.currentColPos, top + this.currentRowPos)
         this.inputBoxChanged = false
       }
 
@@ -2353,6 +2463,8 @@ export default defineComponent({
       this.currentRecord = this.table[top + rowPos]
 
       this.$emit('cell-focus', {rowPos, colPos, cell, record: this.currentRecord})
+      this.currentCell.classList.add('focus')
+      this.lastCell = this.currentCell
 
       // Off all editors
       if (this.showDatePicker) this.showDatePicker = false
@@ -2406,9 +2518,9 @@ export default defineComponent({
       if (typeof colPos !== 'undefined') field = this.fields[colPos]
       if (typeof recPos === 'undefined') recPos = this.pageTop + this.currentRowPos
       if (typeof this.selected[recPos] !== 'undefined')
-        this.updateSelectedRows(field, field.toValue(setText))
+        this.updateSelectedRows(field, setText)
       else
-        this.updateCell(recPos, field, field.toValue(setText))
+        this.updateCell(recPos, field, field.toValue(setText, this.table[recPos], field))
     },
     inputBoxBlur () {
       if (!this.$refs.dpContainer) return
@@ -2419,10 +2531,13 @@ export default defineComponent({
         this.recordBody.children[this.currentRowPos].children[0].classList.remove('focus')
         this.labelTr.children[this.currentColPos + 1].classList.remove('focus')
       }
+      this.lastCell?.classList.remove('focus')
     },
     inputBoxComplete () {
       if (this.inputBoxChanged) {
-        this.inputCellWrite(this.inputBox.value)
+        const value = this.inputBox._value || this.inputBox.value
+        this.inputBox._value = ''
+        this.inputCellWrite(value)
         this.inputBoxChanged = false
       }
       this.inputBoxShow = 0
@@ -2506,6 +2621,7 @@ export default defineComponent({
             type: 'd',
             rec: t
           })))
+          this.refresh()
         })
       }, 100)
     },
@@ -2578,10 +2694,13 @@ export default defineComponent({
         }, 50)
       })
     },
-    updateSelectedRows (field, content) {
+    updateSelectedRows (field, setText) {
       this.processing = true
       setTimeout(() => {
-        Object.keys(this.selected).forEach(recPos => this.updateCell(parseInt(recPos), field, content))
+        Object.keys(this.selected).forEach(recPos => {
+          const pos = parseInt(recPos)
+          this.updateCell(pos, field, field.toValue(setText, this.table[pos], field))
+        })
         this.processing = false
       }, 0)
     },
@@ -2619,7 +2738,7 @@ export default defineComponent({
     /* *** Autocomplete ****************************************************************************************
      */
     async calAutocompleteList (force) {
-      if (!force && !this.currentField.autocomplete) return
+      if (!this.currentField.autocomplete) return
       if (force || (this.inputBoxChanged && this.inputBox.value.length > 0)) {
         if (typeof this.recalAutoCompleteList !== 'undefined') clearTimeout(this.recalAutoCompleteList)
         const doList = async () => {
@@ -2663,7 +2782,7 @@ export default defineComponent({
             }
             list.sort()
           }
-          this.autocompleteSelect = list.findIndex(element => element.toUpperCase().startsWith(value))
+          this.autocompleteSelect = list.findIndex(element => element?.toString().toUpperCase().startsWith(value))
           this.autocompleteInputs = list
           const rect = this.currentCell.getBoundingClientRect()
           this.lazy(() => {
@@ -2680,7 +2799,7 @@ export default defineComponent({
               this.$refs.autocomplete.style.top = rect.bottom + 'px'
             }
             if (rect.left + r.width > window.innerWidth)
-              this.$refs.autocomplete.style.top = (window.innerWidth - r.width) + 'px'
+              this.$refs.autocomplete.style.left = (rect.right - r.width) + 'px'
             else
               this.$refs.autocomplete.style.left = rect.left + 'px'
             const showTop = this.autocompleteSelect * 23 - 206
@@ -2776,6 +2895,12 @@ input:focus, input:active:focus, input.active:focus {
   font-size: 0.88rem;
   max-width: 300px;
   max-height: 235px;
+  animation: 0.3s ease 0s normal forwards 1 fadein;
+}
+@keyframes fadein {
+  0% { opacity: 0; }
+  66% { opacity: 0; }
+  100% { opacity: 1; }
 }
 .autocomplete-result {
   list-style: none;
@@ -2909,10 +3034,18 @@ input:focus, input:active:focus, input.active:focus {
   text-overflow: ellipsis;
   /* animation: fadein 0.2s; */
 }
-.systable.alt tbody td.link:hover {
+.systable tbody td :deep(.badge) {
+  padding: 0px 10px;
+  border-radius: 10px;
+  font-weight: 400;
+}
+
+.systable tbody td.link {
   color: blue;
-  text-decoration: underline;
   cursor: pointer !important;
+}
+.systable tbody td.link:hover {
+  text-decoration: underline;
 }
 .systable tbody td.error {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAAXNSR0IArs4c6QAAAAlwSFlzAAAXEgAAFxIBZ5/SUgAAAGZJREFUOBGlzjsOgDAMA9CwcQSO0PtP3K64Qyugv8S2ZMXTUw5DstmFk8qWAuhEbzSzbQ+oWIPKULAPpGAdxGJDiMGmUBRbQhFsC3kxF+TB3NAOC0ErLAzNMAoaYTT0xyTojclQxR5H5B1HhuS+WAAAAABJRU5ErkJggg==') !important;
@@ -2920,11 +3053,11 @@ input:focus, input:active:focus, input.active:focus {
   background-size: 8px 8px !important;
   background-position: right 0px top 0px !important;
 }
-.systable tbody tr:not(:last-child) td {
-  border-bottom: 1px solid lightgray;
+.systable tbody tr:not(:first-child) td {
+  border-top: 1px solid lightgray;
 }
-.systable tbody tr:last-child td {
-  border-bottom: 1px solid transparent;
+.systable tbody tr:first-child td {
+  border-top: 1px solid transparent;
 }
 .systable td:not(:last-child) {
   border-right: 1px solid lightgray;
@@ -2943,6 +3076,9 @@ input:focus, input:active:focus, input.active:focus {
   cursor: s-resize;
   z-index: 6;
 }
+.systable thead th.no-sorting {
+  cursor: auto;
+}
 .systable thead td.column-filter {
   text-align: left;
   background-color: #fffff2;
@@ -2956,6 +3092,16 @@ input:focus, input:active:focus, input.active:focus {
 .systable td.first-col.focus {
   border-right: 1px solid rgb(61, 85, 61) !important;
 }
+.systable tbody td.grouping {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAA0VXHyAAAAxUlEQVQ4EbWSXQoCMQyEuyqCB1K8/6MeSNCt63zQlrRNxBcDZaeTye92Sb7tRF90TsX90Pem8y739kHo2SJybxxguMmiBAg3o7bY0Cl9S9AJo0uUwKvocemgzCSx8yGEtxwYbh34DcdVhyXZCjWgJsFH8KjJZK2/SrCzUXzsvOUS7cDTuhwd8Eh+GeEl3dhVZsZoiWf5attP4bvOtEQ6mJ5nEdpqYIInbbSDun3FNPO4/71EytqKFreWANEIzJyNEmx30lwfVOglX/lm6bgAAAAASUVORK5CYII=');
+  background-repeat: no-repeat;
+  background-size: 8px 8px;
+  background-position: right 5px top 8px;
+}
+.systable tbody td.grouping.expand {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAA0VXHyAAAAN0lEQVQ4EWNgGPKAEegDEB44ALKdixLrWYCazSgxgIkSzSC9A28AxYFIaRCAE9HAJiSKvUCxAQDacQBbsWXD+AAAAABJRU5ErkJggg==');
+}
+
 .systable tbody td.select:not(.readonly) {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAMAAABhEH5lAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAASUExURQAAANra2tfX19ra2tnZ2dnZ2c8lDs8AAAAFdFJOUwAwQL/PKlwehgAAAAlwSFlzAAAXEQAAFxEByibzPwAAAEdJREFUKFNdyskBACAIA8F49d+yiBEh+9rHYC5poPGiDmUDUGZI2EHCHBV2UWFEiT2UWKBgHwVLiCwjsoKcVeRMkDFFxoiADdH4AyvGhvOPAAAAAElFTkSuQmCC');
   background-repeat: no-repeat;
@@ -3087,6 +3233,7 @@ input:focus, input:active:focus, input.active:focus {
   z-index: 5;
   background-color: white;
   border-left: 1px solid lightgray;
+  border-top: 1px lightgray solid;
   user-select: none;
 }
 .v-scroll-button {
@@ -3251,11 +3398,31 @@ a:disabled {
   left: -8px;
   top: 8px;
 }
+.text-tip {
+  display: inline-block;
+  position: fixed;
+  font-size: 0.88rem;
+  text-align: left;
+  color: gray;
+  background-color: lightyellow;
+  border: 1px solid lightgray;
+  padding: 0.5rem;
+  min-height: 1rem;
+  max-width: 300px;
+  word-wrap: break-word;
+  z-index: 50;
+}
 .norecord {
   z-index: 1;
   font-size: smaller;
   position: absolute;
   left: 50%;
   transform: translate(-50%, 0%);
+}
+td.hideDuplicate:not(.focus) {
+  border-top: 1px solid transparent !important;
+  background-image: none !important;
+  color: transparent;
+  text-shadow: none;
 }
 </style>

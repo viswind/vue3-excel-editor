@@ -132,8 +132,10 @@ In your template
 | summary        | Optional  | String            | Summary: 'sum', 'avg', 'max', 'min'. Default is null |
 | sort           | Optional  | Function          | The custom function for sorting the column |
 | link           | Optional  | Function          | The function to react to the alt-click on cell text |
+| is-link        | Optional  | Function          | The function to identify it is a link |
 | to-text        | Optional  | Function          | The function to convert from object value to edit-text |
 | to-value       | Optional  | Function          | The function to convert from edit-text to object value |
+| placeholder    | Optional  | String            | The custom text if the field is null |
 
 @ - Function can return a promise
 
@@ -153,6 +155,7 @@ In your template
 | datetick        | unix timestamp      | yyyy-mm-dd          | left    | valid date         | none         | Y |
 | datetimetick    | unix timestamp      | yyyy-mm-dd hh:mn    | left    | valid datetime     | none         | Y |
 | datetimesectick | unix timestamp      | yyyy-mm-dd hh:mn:ss | left    | valid datetimesec  | none         | Y |
+| action          | string              | null                | center  | none               | none         | Y |
 
 ## Hot Key List
 
@@ -230,18 +233,20 @@ In your template
 
 ### Variable Component: vue-excel-editor
 
-| Name          | Type    | Description |
-| :---          | :---    | :---        |
-| processing    | Boolean | Component is busy or not |
-| pageTop       | Number  | The top row number of the current page |
-| pageSize      | Number  | The number of rows of each page |
-| fields        | AOO     | It contains the column spec create when mount |
-| filterColumn  | Object  | Contains the current filters, developer can access the filter string via this |
-| table         | AOO     | It contains the filtered records |
-| selected      | Object  | Contains all the selected rows, the key is row number and the value is internal $id |
-| selectedCount | Number  | Number of rows are selected |
-| errmsg        | Object  | Contains all the validation error messages, the key is internal $id plus field name |
-| redo          | AOA     | The buffer of undo, it will be removed after undo or table changed |
+| Name           | Type    | Description |
+| :---           | :---    | :---        |
+| processing     | Boolean | Component is busy or not |
+| pageTop        | Number  | The top row number of the current page |
+| pageSize       | Number  | The number of rows of each page |
+| fields         | AOO     | It contains the column spec create when mount |
+| filterColumn   | Object  | Contains the current filters, developer can access the filter string via this |
+| table          | AOO     | It contains the filtered records |
+| selected       | Object  | Contains all the selected rows, the key is row number and the value is internal $id |
+| selectedCount@ | Number  | Number of rows are selected |
+| errmsg         | Object  | Contains all the validation error messages, the key is internal $id plus field name |
+| redo           | AOA     | The buffer of undo, it will be removed after undo or table changed |
+
+@ - allow v-model binding
 
 AOA = Array of Array, i.e. [[...], [...]]  
 AOO = Array of Object, i.e. [{...}, {...}]
@@ -451,22 +456,31 @@ methods: {
 You may also want to watch the selected records count for displaying the action buttons. For example:
 
 ```html
+<vue-excel-editor v-model:selected-count="count">
+...
+</vue-excel-editor>
+
 <button v-show="showDeleteAction"> Delete </button>
 <button v-show="showSendEmailInvitationAction"> Invite </button>
 <button v-show="showSendBirthdayGreetingAction"> Greeting </button>
 ```
 
 ```js
+data () {
+    return {
+        count: 0
+    }
+}
 computed: {
     showDeleteAction () {
-        return this.$refs.grid.selectedCount > 0  // Show if any records selected
+        return this.count > 0  // Show if any records selected
     },
     showSendEmailInvitationAction () {
-        return this.$refs.grid.selectedCount === 1  // Show if single record is selected
+        return this.count === 1  // Show if single record is selected
     },
     showSendBirthdayGreetingAction () {
         // Show only if any selected people birthday matched today
-        if (this.$refs.grid.selectedCount > 0) {
+        if (this.count > 0) {
             return this.$refs.grid.getSelectedRecords().filter(item => item.birth === today).length > 0
         else
             return false
@@ -732,7 +746,7 @@ Use this with care. The summary calculation eats resource, so it only calculates
 This is a nice feature in enterprise applications. Actually, I was learning from SAP UI. When the user holds the function key (Alt-key here) and move the mouse over the cell content, the text will show as a link. If user clicks on the link, your custom function will be triggered. The following example shows how to route to the user profile page by clicking on the name column cell.
 
 ```html
-<vue-excel-column field="name" label="Name" type="string" width="150px" :link="routeToUserFunc" />
+<vue-excel-column field="name" label="Name" type="string" width="150px" :link="routeToUserFunc" :is-link="showLinkOrString" />
 ```
 
 ```js
@@ -740,9 +754,14 @@ methods: {
     // Hold Alt Key and click on any name, program will route to the page "User Profile"
     routeToUserFunc (content, record) {
         this.$router.push(`/user/${record.user}`)
+    },
+    showLinkOrString(record) {
+        return record.gender === 'M' // Only gender M show the link
     }
 }
 ```
+
+All links will be set as readonly by default.
 
 ### Text/Value conversion
 
@@ -764,6 +783,113 @@ methods: {
     },
 }
 ```
+
+### Badge
+
+Sometimes we want to display the text in badge style.
+
+```html
+<vue-excel-column field="user" label="User ID" type="badge" width="80px" :bg-color="badgeColor" />
+```
+
+```js
+methods: {
+    badgeColor (rec) {
+        return 'blue'
+    }
+}
+```
+
+All badge will be set as readonly by default.
+
+### Action
+
+Sometimes we want to display the list of actions for record processing, such as Edit/Remove.
+
+```html
+<vue-excel-column field="do" label="Action" type="action" :options="['Edit', 'Remove']" width="100px" :change="doAction" placeholder="Action" />
+```
+
+```js
+methods: {
+    doAction (rec) {
+        if (rec.do === 'Edit')
+            // do Edit process
+        else if (rec.do === 'Remove')
+            // do Remove process
+    }
+}
+```
+
+All action will be set as non-readonly to make it selectable. The component will assign a to-text function to return empty string.
+If you want to show a static text in cell, you could use placeholder prop.
+
+### Password
+
+For password editing:
+
+```html
+<vue-excel-column type="password" field="pwd" label="Password" width="90px" />
+```
+
+### Hide Duplication
+
+If a column set to hide-duplicaiton, the component will compare the cell content with the above content and hide it by setting
+to transparent color and remove the border-top. It also affects the next column which also set to hide-duplication. Here is an example:
+
+```html
+  <vue-excel-editor v-model="jsondata" filter-row>
+    <vue-excel-column type="map"      field="gender" width="80px"  label="Gender" :options="{M: 'Male', F: 'Female'}" hide-duplicate />
+    <vue-excel-column type="number"   field="age"    width="60px"  label="Age" summary="avg" hide-duplicate />
+    <vue-excel-column type="badge"    field="user"   width="75px"  label="User" :bgcolor="badgeColor" />
+    <vue-excel-column type="string"   field="name"   width="150px" label="Name" :link="linkClick" :is-link="isLink" />
+    <vue-excel-column type="string"   field="phone"  width="160px" label="Contact" />
+    <vue-excel-column type="password" field="pwd"    width="90px"  label="Password" />
+    <vue-excel-column type="date"     field="birth"  width="115px" label="Date Of Birth" />
+    <vue-excel-column type="action"   field="action" width="75px"  label="#" :options="['Edit', 'Remove']" :change="doAction" placeholder="Action" />
+  </vue-excel-editor>
+```
+
+![Hide Duplication](https://i.imgur.com/HCFyEEp.png "Hide Duplication")
+
+All field set to hide duplication will be set as readonly by default.
+
+### Grouping
+
+Grouping is a little bit tricky. Sometimes we want to show the first row of a set of record and hide the rest of the row
+based on the cell value. For example, we want to group the gender by M and F and the first record are the header that holds the statistics
+of each group. If this is the case, you could use grouping attribute. For example:
+
+```html
+  <vue-excel-editor ref="editor" v-if="!hide" v-model="jsondata" filter-row v-model:selected-count="count">
+    <vue-excel-column type="string"   field="region" width="80px"  label="Group1" grouping="collapse" />
+    <vue-excel-column type="string"   field="area"   width="80px"  label="Group2" grouping="collapse" />
+    <vue-excel-column type="map"      field="gender" width="80px"  label="Gender" :options="{M: 'Male', F: 'Female'}" :change="genderChange" />
+    <vue-excel-column type="number"   field="age"    width="60px"  label="Age" :validate="validateAge" summary="avg" />
+    <vue-excel-column type="badge"    field="user"   width="75px"  label="User" :bgcolor="badgeColor" />
+    <vue-excel-column type="string"   field="name"   width="150px" label="Name" :link="linkClick" :isLink="isLink" />
+    <vue-excel-column type="string"   field="phone"  width="160px" label="Contact" :to-text="toTextPasswd"/>
+    <vue-excel-column type="password" field="pwd"    width="90px"  label="Password" />
+    <vue-excel-column type="date"     field="birth"  width="115px" label="Date Of Birth" />
+    <vue-excel-column type="action"   field="action" width="75px"  label="#" :options="['Edit', 'Remove']" :change="doAction" placeholder="Action" />
+  </vue-excel-editor>
+```
+
+```js
+  jsondata = [
+    {region: 'US', area: 'AZ', user: "hc", name: "Harry Cole", phone: "1-415-2345678", gender: "M", age: 25, birth: "1997-07-01"},
+    {region: 'US', area: 'AZ', user: "sm", name: "Simon Minolta", phone: "1-123-7675682", gender: "M", age: 25, birth: "1999-11-12"},
+    {region: 'US', area: 'CL', user: "ra", name: "Rachael Amy", phone: "1-456-9981212", gender: "F", age: 19, birth: "2000-06-11"},
+    {region: 'US', area: 'CL', user: "ag", name: "Mary George", phone: "1-556-1245684", gender: "F", age: 19, birth: "2002-08-01"},
+    {region: 'CN', area: 'GZ', user: "kl", name: "Kenny Linus", phone: "1-891-2345685", gender: "F", age: 29, birth: "1990-09-01"}
+  ])
+```
+
+The above shows the way in specifying 2 groups (region + area). Both group set to collapse by default.
+
+![Grouping](https://i.imgur.com/g5XnsbF.png "Grouping")
+
+All field set to be grouping will be set as readonly and hide duplication by default.
 
 ### Localization
 
