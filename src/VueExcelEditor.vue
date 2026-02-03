@@ -2370,11 +2370,11 @@ export default defineComponent({
         this.currentRecord = this.table[this.pageTop + rowPos]
 
         this.$emit('cell-click', {rowPos, colPos}, this.currentCell.textContent, this.currentRecord, this.currentField, this)
-        if (typeof this.currentField.cellClick === 'function')
+        if (this.currentField && typeof this.currentField.cellClick === 'function')
           this.currentField.cellClick(this.currentCell.textContent, this.currentRecord, rowPos, colPos, this.currentField, this)
         if (this.currentField && this.currentField.link /* && e.altKey */ && this.currentCell.textContent)
           return setTimeout(() => this.currentField.link(this.currentCell.textContent, this.currentRecord, rowPos, colPos, this.currentField, this))
-        if (this.currentField.grouping) {
+        if (this.currentField && this.currentField.grouping) {
           this.ungroup[this.currentField.name + this.currentCell.textContent] = !this.ungroup[this.currentField.name + this.currentCell.textContent]
           this.refresh()
           return
@@ -2384,7 +2384,7 @@ export default defineComponent({
         this.focused = true
         this.moveInputSquare(rowPos, colPos)
 
-        if (this.currentField.listByClick) return this.calAutocompleteList(true)
+        if (this.currentField?.listByClick) return this.calAutocompleteList(true)
         if (e.target.offsetWidth - e.offsetX > 25) return
         if (e.target.offsetWidth < e.target.scrollWidth) {
           // show textTip
@@ -2409,7 +2409,7 @@ export default defineComponent({
           // this.$refs.texttip.style.top = rect.bottom + 'px'
           // this.$refs.texttip.style.left = rect.left + 'px'
         }
-        if (this.currentField.readonly) return
+        if (this.currentField?.readonly) return
         this.inputBox.value = this.currentCell.textContent
         if (e.target.classList.contains('select')) this.calAutocompleteList(true)
         if (e.target.classList.contains('datepick')) this.showDatePickerDiv()
@@ -2559,7 +2559,7 @@ export default defineComponent({
       return true
     },
     inputSquareClick () {
-      if (!this.currentField.readonly && !this.inputBoxShow && this.currentField.type !== 'select') {
+      if (this.currentField && !this.currentField.readonly && !this.inputBoxShow && this.currentField.type !== 'select') {
         this.inputBox.value = this.currentCell.textContent
         this.inputBoxShow = 1
         this.inputBox.focus()
@@ -2569,7 +2569,7 @@ export default defineComponent({
     },
     inputBoxMouseMove (e) {
       let cursor = 'text'
-      if (!this.currentField.readonly
+      if (this.currentField && !this.currentField.readonly
         && (this.currentField.options || this.currentField.type === 'date')
         && e.target.offsetWidth - e.offsetX < 15)
         cursor = 'pointer'
@@ -2577,12 +2577,12 @@ export default defineComponent({
     },
     inputBoxMouseDown (e) {
       if (e.target.offsetWidth - e.offsetX > 15) return
-      if (this.currentField.readonly) return
-      if (this.currentField.options) {
+      if (this.currentField?.readonly) return
+      if (this.currentField?.options) {
         e.preventDefault()
         this.calAutocompleteList(true)
       }
-      if (this.currentField.type === 'date') {
+      if (this.currentField?.type === 'date') {
         e.preventDefault()
         this.showDatePickerDiv()
       }
