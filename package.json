@@ -5,7 +5,7 @@
   "main": "src/main.js",
   "dependencies": {
     "@vuepic/vue-datepicker": "^3.3.0",
-    "vuedraggable": "^4.1.0",
+    "vuedraggable": "^4.1.0"
   },
   "repository": {
     "type": "git",
