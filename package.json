@@ -6,7 +6,6 @@
   "dependencies": {
     "@vuepic/vue-datepicker": "^3.3.0",
     "vuedraggable": "^4.1.0",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "repository": {
     "type": "git",
