@@ -4,6 +4,7 @@
   "version": "1.0.60",
   "main": "src/main.js",
   "dependencies": {
+    "@e965/xlsx": "^0.20.3",
     "@vuepic/vue-datepicker": "^3.3.0",
     "vuedraggable": "^4.1.0"
   },
